@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简约卡片生成器</title>
+    <meta name="description" content="一个基于Web的智能卡片生成器，支持多种设计风格和颜色主题，让您的文字内容更加美观。">
+    <meta name="keywords" content="卡片生成器,设计工具,Material Design,玻璃拟态,在线工具">
+    <meta name="author" content="硅基鸟人">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="简约卡片生成器">
+    <meta property="og:description" content="支持多种设计风格的智能卡片生成器">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-username.github.io/card-generator/">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Material Design Colors */
+            --md-blue-500: #2196F3;
+            --md-blue-600: #1976D2;
+            --md-red-500: #F44336;
+            --md-green-500: #4CAF50;
+            --md-orange-500: #FF9800;
+            --md-purple-500: #9C27B0;
+            --md-grey-50: #FAFAFA;
+            --md-grey-100: #F5F5F5;
+            --md-grey-900: #212121;
+            
+            /* Default theme variables */
+            --primary-color: var(--md-blue-500);
+            --primary-dark: var(--md-blue-600);
+            --surface-color: #FFFFFF;
+            --background-color: var(--md-grey-50);
+            --text-primary: var(--md-grey-900);
+            --text-secondary: #757575;
+        }
+
+        /* ===== STYLE THEMES ===== */
+        
+        /* Material Design Style */
+        .style-material {
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.1);
+            --card-radius: 8px;
+            --header-height: 64px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Minimalist Style */
+        .style-minimal {
+            --card-shadow: none;
+            --card-radius: 0;
+            --header-height: 80px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        /* Glassmorphism Style */
+        .style-glass {
+            --card-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            --card-radius: 16px;
+            --header-height: 72px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        /* Neumorphism Style */
+        .style-neuro {
+            --card-shadow: 8px 8px 16px rgba(0,0,0,0.1), -8px -8px 16px rgba(255,255,255,0.8);
+            --card-radius: 20px;
+            --header-height: 76px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Bold Geometric Style */
+        .style-geometric {
+            --card-shadow: 0 0 0 4px var(--primary-color);
+            --card-radius: 0;
+            --header-height: 88px;
+            font-family: 'Google Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--background-color);
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            color: var(--text-primary);
+        }
+
+        /* Material Design Background */
+        .style-material body {
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        }
+
+        /* Minimalist Background */
+        .style-minimal body {
+            background: #FFFFFF;
+        }
+
+        /* Glassmorphism Background - 新方法 */
+        .style-glass body {
+            background: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/><feColorMatrix in="colorNoise" type="saturate" values="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.03"/></svg>'),
+                linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            position: relative;
+        }
+
+        /* Neumorphism Background */
+        .style-neuro body {
+            background: #E0E5EC;
+        }
+
+        /* Geometric Background */
+        .style-geometric body {
+            background: linear-gradient(45deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%);
+            background-size: 400% 400%;
+            animation: geometricGradient 15s ease infinite;
+        }
+
+        @keyframes geometricGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glassmorphism Container - 简化版本 */
+        .style-glass .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-panel h2 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .style-selector, .color-selector {
+            margin-bottom: 24px;
+        }
+
+        .style-options, .color-options {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .style-option {
+            text-align: center;
+        }
+
+        .style-btn {
+            width: 80px;
+            height: 60px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            background: #FFFFFF;
+            overflow: hidden;
+        }
+
+        .style-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        .style-btn.active {
+            border-color: var(--primary-color);
+            border-width: 3px;
+            box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
+        }
+
+        .style-preview {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+        }
+
+        /* Material Design Preview */
+        .style-btn.material .preview-header {
+            height: 16px;
+            background: var(--md-blue-500);
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 4px;
+        }
+
+        .style-btn.material .preview-content {
+            flex: 1;
+            background: #F5F5F5;
+            border-radius: 0 0 4px 4px;
+            position: relative;
+        }
+
+        .style-btn.material .preview-content::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            right: 4px;
+            height: 2px;
+            background: var(--md-blue-500);
+            border-radius: 1px;
+        }
+
+        /* Minimal Preview */
+        .minimal-preview .preview-line {
+            height: 1px;
+            background: #E0E0E0;
+            margin: 8px 0;
+        }
+
+        .minimal-preview .preview-text {
+            height: 20px;
+            background: #F5F5F5;
+            border-radius: 2px;
+        }
+
+        /* Glass Preview */
+        .glass-preview {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            backdrop-filter: blur(10px);
+        }
+
+        .glass-preview .preview-blur {
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Neuro Preview */
+        .neuro-preview {
+            background: #E0E5EC;
+        }
+
+        .neuro-preview .preview-soft {
+            width: 100%;
+            height: 100%;
+            background: #E0E5EC;
+            border-radius: 8px;
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1), inset -2px -2px 4px rgba(255,255,255,0.8);
+        }
+
+        /* Geometric Preview */
+        .geometric-preview {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+        }
+
+        .geometric-preview .preview-shape {
+            width: 100%;
+            height: 100%;
+            background: #FFFFFF;
+            clip-path: polygon(0 0, 80% 0, 100% 100%, 20% 100%);
+        }
+
+        .style-label {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Color Options */
+        .color-options {
+            gap: 12px;
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.active {
+            border-color: #FFFFFF;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .color-btn.blue { background: var(--md-blue-500); }
+        .color-btn.red { background: var(--md-red-500); }
+        .color-btn.green { background: var(--md-green-500); }
+        .color-btn.orange { background: var(--md-orange-500); }
+        .color-btn.purple { background: var(--md-purple-500); }
+
+        .card {
+            width: 800px;
+            height: 500px;
+            background: var(--surface-color);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border: none;
+        }
+
+        /* Material Design Card */
+        .style-material .card {
+            background: #FFFFFF;
+            transform: translateY(0);
+        }
+
+        .style-material .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12);
+        }
+
+        /* Minimalist Card */
+        .style-minimal .card {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            box-shadow: none;
+        }
+
+        /* Glassmorphism Card - 全新方法：分层玻璃 */
+        .style-glass .card {
+            background: none;
+            border: none;
+            box-shadow: none;
+            position: relative;
+            overflow: visible;
+        }
+
+        .style-glass .card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: -2;
+        }
+
+        .style-glass .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: var(--card-radius);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            z-index: -1;
+        }
+
+        /* Neumorphism Card */
+        .style-neuro .card {
+            background: #E0E5EC;
+            border: none;
+        }
+
+        /* Geometric Card */
+        .style-geometric .card {
+            background: #FFFFFF;
+            border: none;
+            transform: rotate(-1deg);
+            position: relative;
+        }
+
+        .style-geometric .card::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: var(--primary-color);
+            z-index: -1;
+            transform: rotate(2deg);
+        }
+
+        .card > .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--primary-color);
+            border-radius: var(--card-radius) var(--card-radius) 0 0;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            z-index: 1;
+        }
+
+        /* Glassmorphism Header - 重新设计 */
+        .style-glass .header-bg {
+            background: rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 500;
+            z-index: 2;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        /* Minimalist Title */
+        .style-minimal .title {
+            color: var(--text-primary);
+            font-weight: 400;
+            font-size: 32px;
+            text-align: center;
+        }
+
+        /* Glassmorphism Title */
+        .style-glass .title {
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+
+        /* Neumorphism Title */
+        .style-neuro .title {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8), -1px -1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Geometric Title */
+        .style-geometric .title {
+            color: white;
+            font-weight: 700;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .content {
+            padding: 100px 80px 60px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100% - 160px);
+        }
+
+        .main-text {
+            font-size: 22px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin: 0;
+            position: relative;
+            max-width: 600px;
+            text-align: center;
+            padding: 0 40px;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        /* Glassmorphism Text - 简化但有效 */
+        .style-glass .main-text {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 400;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .quote-left, .quote-right {
+            position: absolute;
+            font-size: 48px;
+            color: var(--text-secondary);
+            opacity: 0.3;
+            font-family: Georgia, serif;
+            z-index: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .quote-left {
+            top: -15px;
+            left: -25px;
+        }
+
+        .quote-right {
+            bottom: -35px;
+            right: -25px;
+        }
+
+        /* Style-specific quote adjustments */
+        .style-minimal .quote-left,
+        .style-minimal .quote-right {
+            display: none;
+        }
+
+        .style-glass .quote-left,
+        .style-glass .quote-right {
+            color: rgba(255, 255, 255, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            font-size: 52px;
+            filter: blur(0.5px);
+        }
+
+        .decoration {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .decoration.left {
+            top: 100px;
+            left: 30px;
+        }
+
+        .decoration.right {
+            top: 100px;
+            right: 30px;
+        }
+
+        /* Glassmorphism Decorations */
+        .style-glass .decoration {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .bottom-line {
+            position: absolute;
+            bottom: 30px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .accent-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666666;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .footer .designer {
+            font-weight: 600;
+            color: #333333;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .card-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 600px;
+                height: auto;
+                min-height: 400px;
+            }
+
+            .control-panel {
+                padding: 20px;
+            }
+
+            .content {
+                padding: 80px 60px 40px;
+            }
+
+            .main-text {
+                font-size: 20px;
+                padding: 0 30px;
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <h2>🎨 智能卡片生成器</h2>
+
+            <!-- 设计风格选择器 -->
+            <div class="style-selector">
+                <div class="input-group">
+                    <label>🎨 选择设计风格：</label>
+                    <div class="style-options">
+                        <div class="style-option">
+                            <div class="style-btn material active" onclick="changeStyle('material')" title="Material Design">
+                                <div class="style-preview">
+                                    <div class="preview-header"></div>
+                                    <div class="preview-content"></div>
+                                </div>
+                            </div>
+                            <div class="style-label">Material Design</div>
+                        </div>
+                        <div class="style-option">
+                            <div class="style-btn minimal" onclick="changeStyle('minimal')" title="极简主义">
+                                <div class="style-preview minimal-preview">
+                                    <div class="preview-line"></div>
+                                    <div class="preview-text"></div>
+                                </div>
+                            </div>
+                            <div class="style-label">极简主义</div>
+                        </div>
+                        <div class="style-option">
+                            <div class="style-btn glass" onclick="changeStyle('glass')" title="玻璃拟态">
+                                <div class="style-preview glass-preview">
+                                    <div class="preview-blur"></div>
+                                </div>
+                            </div>
+                            <div class="style-label">玻璃拟态</div>
+                        </div>
+                        <div class="style-option">
+                            <div class="style-btn neuro" onclick="changeStyle('neuro')" title="新拟物化">
+                                <div class="style-preview neuro-preview">
+                                    <div class="preview-soft"></div>
+                                </div>
+                            </div>
+                            <div class="style-label">新拟物化</div>
+                        </div>
+                        <div class="style-option">
+                            <div class="style-btn geometric" onclick="changeStyle('geometric')" title="大胆几何">
+                                <div class="style-preview geometric-preview">
+                                    <div class="preview-shape"></div>
+                                </div>
+                            </div>
+                            <div class="style-label">大胆几何</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 颜色主题选择器 -->
+            <div class="color-selector">
+                <div class="input-group">
+                    <label>🎨 选择颜色主题：</label>
+                    <div class="color-options">
+                        <div class="color-btn blue active" onclick="changeColor('blue')" title="蓝色"></div>
+                        <div class="color-btn red" onclick="changeColor('red')" title="红色"></div>
+                        <div class="color-btn green" onclick="changeColor('green')" title="绿色"></div>
+                        <div class="color-btn orange" onclick="changeColor('orange')" title="橙色"></div>
+                        <div class="color-btn purple" onclick="changeColor('purple')" title="紫色"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="cardTitle">卡片标题：</label>
+                <input type="text" id="cardTitle" placeholder="请输入卡片标题..." value="政治极化与中间派困境">
+            </div>
+
+            <div class="input-group">
+                <label for="cardContent">卡片内容：</label>
+                <textarea id="cardContent" placeholder="请输入您想要显示的内容...">在高度极化的政治环境中，中间派选民往往被迫在两个极端之间做出选择，而那些试图维持独立政治立场的个人和组织则面临被边缘化的风险。</textarea>
+            </div>
+
+            <button class="generate-btn" onclick="generateCard()">
+                ✨ 生成卡片
+            </button>
+        </div>
+
+        <!-- 卡片显示区域 -->
+        <div class="card-container">
+            <div class="card" id="knowledgeCard">
+                <div class="header-bg"></div>
+                <div class="title" id="cardTitleDisplay">政治极化与中间派困境</div>
+
+                <div class="content">
+                    <p class="main-text" id="cardContentDisplay">
+                        <span class="quote-left">"</span>
+                        在高度极化的政治环境中，<span class="highlight">中间派选民</span>往往被迫在两个极端之间做出选择，而那些试图维持<span class="highlight">独立政治立场</span>的个人和组织则面临被边缘化的风险。
+                        <span class="quote-right">"</span>
+                    </p>
+                </div>
+
+                <div class="decoration left"></div>
+                <div class="decoration right"></div>
+
+                <div class="bottom-line"></div>
+
+                <div class="accent-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 版权信息 -->
+        <div class="footer">
+            <div class="designer">设计者：硅基鸟人（公众号同名）</div>
+            <div style="margin-top: 5px; font-size: 12px;">© 2024 智能卡片生成器 - 让文字更美观</div>
+        </div>
+    </div>
+
+    <script>
+        let currentStyle = 'material';
+        let currentColor = 'blue';
+
+        const colorMap = {
+            blue: { primary: '#2196F3', dark: '#1976D2' },
+            red: { primary: '#F44336', dark: '#D32F2F' },
+            green: { primary: '#4CAF50', dark: '#388E3C' },
+            orange: { primary: '#FF9800', dark: '#F57C00' },
+            purple: { primary: '#9C27B0', dark: '#7B1FA2' }
+        };
+
+        function changeStyle(style) {
+            // 移除当前样式类
+            document.body.classList.remove('style-material', 'style-minimal', 'style-glass', 'style-neuro', 'style-geometric');
+
+            // 添加新样式类
+            document.body.classList.add('style-' + style);
+
+            // 更新按钮状态
+            document.querySelectorAll('.style-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.style-btn.' + style).classList.add('active');
+
+            currentStyle = style;
+
+            // 添加样式切换动画
+            const card = document.getElementById('knowledgeCard');
+            card.style.opacity = '0.8';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        function changeColor(color) {
+            const colors = colorMap[color];
+            document.documentElement.style.setProperty('--primary-color', colors.primary);
+            document.documentElement.style.setProperty('--primary-dark', colors.dark);
+
+            // 更新按钮状态
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.color-btn.' + color).classList.add('active');
+
+            currentColor = color;
+        }
+
+        function generateCard() {
+            // 获取输入值
+            const title = document.getElementById('cardTitle').value.trim();
+            const content = document.getElementById('cardContent').value.trim();
+
+            // 验证输入
+            if (!title) {
+                alert('请输入卡片标题！');
+                return;
+            }
+
+            if (!content) {
+                alert('请输入卡片内容！');
+                return;
+            }
+
+            // 更新标题
+            document.getElementById('cardTitleDisplay').textContent = title;
+
+            // 处理内容并添加高亮
+            const processedContent = processContent(content);
+            document.getElementById('cardContentDisplay').innerHTML =
+                '<span class="quote-left">"</span>' +
+                processedContent +
+                '<span class="quote-right">"</span>';
+
+            // 添加更新动画
+            const card = document.getElementById('knowledgeCard');
+            card.style.animation = 'none';
+            card.offsetHeight; // 触发重排
+            card.style.animation = 'fadeIn 0.8s ease-out';
+        }
+
+        function processContent(content) {
+            // 自动识别并高亮关键词
+            const keywords = [
+                '中间派', '选民', '极化', '政治', '独立', '立场', '边缘化',
+                '民主', '自由', '权利', '社会', '制度', '改革', '发展',
+                '创新', '科技', '教育', '文化', '经济', '环境', '健康',
+                '和谐', '平等', '公正', '法治', '透明', '责任', '合作'
+            ];
+
+            let processedContent = content;
+
+            // 为关键词添加高亮
+            keywords.forEach(keyword => {
+                const regex = new RegExp(keyword, 'g');
+                processedContent = processedContent.replace(regex,
+                    `<span class="highlight">${keyword}</span>`);
+            });
+
+            return processedContent;
+        }
+
+        // 支持回车键生成卡片
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                generateCard();
+            }
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            changeStyle('material');
+            changeColor('blue');
+        });
+    </script>
+</body>
+</html>
