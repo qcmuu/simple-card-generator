@@ -66,9 +66,9 @@ MIT License - 欢迎自由使用和修改
 
 ## 🌟 在线体验
 
-[点击这里体验在线版本](https://your-username.github.io/card-generator/)
+[点击这里体验在线版本](https://qcmuu.github.io/card-generator/)
 
 ---
 
 如果您觉得这个项目有用，请给个 ⭐ Star 支持一下！
-# simple-card-generator
+
